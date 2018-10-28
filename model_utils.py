@@ -95,6 +95,7 @@ def rebuild_model_with_df(df):
 
 
 def evaluate(df):
+    df = preprocess_data(df)
     model = rebuild_model_with_df(df)
     test_input_fn = lambda: input_fn(df)
     y_pred = [pred['class_ids'][0] for pred in list(model.predict(
