@@ -16,7 +16,7 @@ def test_predictions(df):
     :return: None
     """
     json = df.to_json()
-    response = requests.post(RETRAIN_URL, json=json).json()
+    response = requests.post(PREDICT_URL, json=json).json()
     print(response)
 
 
@@ -39,4 +39,4 @@ if __name__ == '__main__':
     # memory to single process, only one of the below methods can be tested
     # at a time. The other must be commented out.
     test_predictions(df)
-    test_online_training(df)
+    # test_online_training(df)

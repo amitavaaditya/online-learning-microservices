@@ -73,15 +73,6 @@ def preprocess_data(df):
     return df
 
 
-def load_and_prepare_dataset(filename):
-    """
-    Method to split the DataFrame into training and validation sets
-    :param df: preprocessed DataFrame
-    :return: tuple of training and validation sets
-    """
-    return preprocess_data(read_data(filename))
-
-
 def input_fn(df, label_col=LABEL_COL):
     """
     Input function generator required by Tensorflow Estimator API
@@ -129,7 +120,7 @@ def rebuild_model_with_df(df):
 
 def evaluate(df):
     """
-    Method to evaluate on the help out validation set
+    Method to evaluate on the held out validation set
     :param df: DataFrame for validation
     :return: None
     """
@@ -177,5 +168,5 @@ def incremental_train(df):
 
 
 if __name__ == '__main__':
-    test_df = load_and_prepare_dataset('validation.csv')
+    test_df = read_data('validation.csv')
     evaluate(test_df)
