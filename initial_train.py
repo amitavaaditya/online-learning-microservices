@@ -1,19 +1,30 @@
-import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 import tensorflow as tf
 
 
+# Constants needed
 LABEL_COL = 'classLabel'
 MODEL_DIR = 'model'
 
 
 def read_data(filename):
+    """
+    Method to read the dataset as a pandas DataFrame
+    :param filename: filename of the dataset
+    :return: DataFrame of the dataset
+    """
     return pd.read_csv(filename, sep=';', decimal=',', na_values=['NA'])
 
 
 def preprocess_data(df):
+    """
+    Method responsible to perform basic preprocessing required prior to
+    training/evaluation/prediction
+    :param df: unprocessed DataFrame
+    :return: DataFrame after preprocessing
+    """
     df['v19'] = df['v19'].apply(str)
     median_values = {
         'v2': 28.67,
@@ -61,15 +72,31 @@ def preprocess_data(df):
 
 
 def split_data(df):
+    """
+    Method to split the DataFrame into training and validation sets
+    :param df: preprocessed DataFrame
+    :return: tuple of training and validation sets
+    """
     return train_test_split(df, random_state=0, stratify=df[LABEL_COL])
 
 
 def input_fn(df):
+    """
+    Input function generator required by Tensorflow Estimator API
+    :param df: DataFrame to be used for training/evaluation/prediction
+    :return: Input function for Tensorflow Estimator API
+    """
     return tf.data.Dataset.from_tensor_slices((dict(df), df[LABEL_COL])) \
         .batch(32)
 
 
 def get_feature_columns(df):
+    """
+    Method to generate the list of Feature Columns required by Tensorflow
+    Estimator API
+    :param df: Dataset to fetch columns from
+    :return: List of Tensorflow Feature Columns
+    """
     numeric_columns = [tf.feature_column.numeric_column(column) for column
                        in ('v2', 'v3', 'v8', 'v11', 'v14', 'v15', 'v17')]
     categorical_columns = [
@@ -83,6 +110,11 @@ def get_feature_columns(df):
 
 
 def build_model(feature_columns):
+    """
+    Method to build the classifier model
+    :param feature_columns: List of Tensorflow Feature Columns
+    :return: Tensorflow Estimator model
+    """
     return tf.estimator.DNNClassifier(
         hidden_units=[4, 4],
         feature_columns=feature_columns,
@@ -92,12 +124,26 @@ def build_model(feature_columns):
 
 
 def train(model, train_input_fn, epochs):
+    """
+    Method to invoke the training process
+    :param model: Tensorflow Estimator model
+    :param train_input_fn: Input function for Tensorflow Estimator API
+    :param epochs: number of passes over the data
+    :return: None
+    """
     for i in range(epochs):
         print('Epoch {}'.format(i + 1))
         model.train(train_input_fn)
 
 
 def evaluate(model, val_input_fn, val_df):
+    """
+    Method to invoke the training process
+    :param model: Tensorflow Estimator model
+    :param val_input_fn: Input function for Tensorflow Estimator API
+    :param val_df: DataFrame for validation
+    :return: None
+    """
     y_pred = [pred['class_ids'][0] for pred in list(model.predict(
         val_input_fn))]
     y_true = val_df[LABEL_COL]
